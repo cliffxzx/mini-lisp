@@ -25,6 +25,6 @@ public:
   virtual int yylex(Parser::semantic_type *const lval, Parser::location_type *location);
 };
 
-} // namespace MiniLisp
+}; // namespace MiniLisp
 
 #endif

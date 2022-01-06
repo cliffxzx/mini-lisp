@@ -11,3 +11,32 @@
 
 # MAYBE ONE DAY USE （TO BE DELETE)
 https://stackoverflow.com/questions/31101839/flex-bison-yylex-function-does-not-take-3-arguments
+
+## Cout parameter pack
+https://stackoverflow.com/questions/27375089/what-is-the-easiest-way-to-print-a-variadic-parameter-pack-using-stdostream
+
+
+class lisp_ostream : private ostream {
+public:
+  lisp_ostream() = default;
+  lisp_ostream(streambuf *buf) : ostream(buf){};
+
+  template <typename T>
+  friend lisp_ostream &operator<<(lisp_ostream &os, const T &val) {
+    ostream &stdos = static_cast<ostream &>(os);
+    stdos << val;
+    return os;
+  }
+
+  friend lisp_ostream &operator<<(lisp_ostream &os1, ostream &(*)(ostream &));
+
+  ostream &get_ostream() { return *this; }
+};
+
+inline lisp_ostream &operator<<(lisp_ostream &os, const bool &val) { return os << (val ? "#t" : "#f"); }
+
+auto t = overloaded {
+  [](auto arg) { std::cout << arg << ' '; },
+  [](double arg) { std::cout << std::fixed << arg << ' '; },
+  [](const std::string &arg) { std::cout << std::quoted(arg) << ' '; }
+};

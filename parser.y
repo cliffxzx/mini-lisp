@@ -3,21 +3,23 @@
 #include <cstdlib>
 #include <fstream>
 #include <string>
+#include <variant>
+#include <vector>
 
 #include "interpreter.hpp"
 
 #undef yylex
 #define yylex scanner.yylex
-
 }
 
 // insert code verbatim into the output parser source at the default location or at the location specified by qualifier
 // https://www.gnu.org/software/bison/manual/bison.html#g_t_0025code-Summary
 %code requires {
+#include "types.hpp"
 namespace MiniLisp {
   class Interpreter;
   class Scanner;
-}
+};
 
 }
 
@@ -52,46 +54,48 @@ namespace MiniLisp {
 %token <int32_t> NUMBER
 %token <bool> BOOL
 %token <std::string> ID
-%token PRINT_NUM PRINT_BOOL MOD AND OR NOT DEFINE FUN IF ANY NEWLINE END
+%token PRINT_NUM PRINT_BOOL MOD AND OR NOT DEFINE FUN IF ANY NEWLINE END SEPARATOR
 
-%type <int32_t> expression;
+%type <Types::Expression> expression, print_statement;
 %%
 
 program: statement | statement program;
 statement: expression | define_statement | print_statement;
-   print_statement: PRINT_NUM expression { interpreter.out << $2; }
-   print_statement: PRINT_BOOL expression { interpreter.out << $2; };
-   expressions: | expression expressions;
-   expression: BOOL | NUMBER | variable | num_operator | logical_operator | function_expression | function_call | if_expression;
-      num_operator: plus | minus | multiply | divide | modulus | greater | smaller | equal;
-         plus: '(' '+' expression expression expressions ')';
-         minus: '(' '-' expression expression ')';
-         multiply: '(' '*' expression expression expressions ')';
-         divide: '(' '/' expression expression ')';
-         modulus: '(' MOD expression expression ')';
-         greater: '(' '>' expression expression ')';
-         smaller: '(' '<' expression expression ')';
-         equal: '(' '=' expression expression expressions ')';
-      logical_operator: and_operator | or_operator | not_operator;
-         and_operator: '('AND expression expression expressions')';
-         or_operator: '('OR expression expression expressions')';
-         not_operator: '('NOT expression')';
-      define_statement: '(' DEFINE variable expression ')';
-      variable: ID;
-      function_expression: '(' FUN function_ids function_body ')';
-         ids: | ID ids;
-         function_ids: '(' ids ')';
-         function_body: expression;
-         function_call: '(' function_expression parameters ')';
-         function_call: '(' function_name parameters ')';
-            parameter: expression;
-            parameters: | parameter parameters;
-            last_exp: expression;
-            function_name: ID;
-      if_expression: '(' IF test_exp than_exp else_exp ')';
-         test_exp: expression;
-         than_exp: expression;
-         else_exp: expression;
+      print_statement: PRINT_NUM expression { interpreter << interpreter.eval("print_num", $2); return 0; };
+      print_statement: PRINT_BOOL expression { interpreter << interpreter.eval("print_bool", $2); };
+      expressions: | expression expressions;
+      expression: variable | num_operator | logical_operator | function_expression | function_call | if_expression;
+         expression: BOOL { $$ = $1;};
+         expression: NUMBER { $$ = $1;};
+         num_operator: plus | minus | multiply | divide | modulus | greater | smaller | equal;
+            plus: '(' '+' expression expression expressions ')';
+            minus: '(' '-' expression expression ')';
+            multiply: '(' '*' expression expression expressions ')';
+            divide: '(' '/' expression expression ')';
+            modulus: '(' MOD expression expression ')';
+            greater: '(' '>' expression expression ')';
+            smaller: '(' '<' expression expression ')';
+            equal: '(' '=' expression expression expressions ')';
+         logical_operator: and_operator | or_operator | not_operator;
+            and_operator: '('AND expression expression expressions')';
+            or_operator: '('OR expression expression expressions')';
+            not_operator: '('NOT expression')';
+         define_statement: '(' DEFINE variable expression ')';
+         variable: ID { $1;};
+         function_expression: '(' FUN function_ids function_body ')';
+            ids: | ID ids;
+            function_ids: '(' ids ')';
+            function_body: expression;
+            function_call: '(' function_expression parameters ')';
+            function_call: '(' function_name parameters ')';
+               parameter: expression;
+               parameters: | parameter parameters;
+               last_exp: expression;
+               function_name: ID;
+         if_expression: '(' IF test_exp than_exp else_exp ')';
+            test_exp: expression;
+            than_exp: expression;
+            else_exp: expression;
 %%
 
 void MiniLisp::Parser::error(const location_type &l, const std::string &err_message) {

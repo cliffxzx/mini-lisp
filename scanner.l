@@ -43,13 +43,22 @@ using std::stoi;
 /* when using this option, flex defaults to generating the scanner to the file lex.yy.cc instead of lex.yy.c */
 %option c++
 
-separator ([\t\n\r ])
+separator ([\t\n\r ]*)
 letter ([a-z])
 digit ([0-9])
 
-number (0|-?[1-9][0-9]*)
-id ([a-z]([a-z]|[0-9]|-)*)
-bool (#t|#f)
+number (0|-?[1-9]{digit}*)
+id ({letter}({letter}|{digit}|-)*)
+bool_val (#t|#f)
+print_num (print_num)
+print_bool (print_bool)
+mod (mod)
+and (and)
+or (or)
+not (not)
+define (define)
+fun (fun)
+if (if)
 
 newline (\r?\n)
 any (.)
@@ -64,16 +73,26 @@ any (.)
 %{
    // https://www.gnu.org/software/bison/manual/html_node/Split-Symbols.html
 %}
+{separator} { }
 {number} { yylval->emplace<int32_t>(stoi(yytext)); return token::NUMBER; }
 {id} { yylval->emplace<string>(yytext); return token::ID; }
-{bool} { yylval->emplace<bool>(strcmp(yytext, "#f")); return token::BOOL; }
+{bool_val} { yylval->emplace<bool>(strcmp(yytext, "#f")); return token::BOOL; }
+{print_num} { return token::PRINT_NUM; }
+{print_bool} { return token::PRINT_BOOL; }
+{mod} { return token::MOD; }
+{and} { return token::AND; }
+{or} { return token::OR; }
+{not} { return token::NOT; }
+{define} { return token::DEFINE; }
+{fun} { return token::FUN; }
+{if} { return token::IF; }
 
 %{
    // update line number
 %}
-{newline} { loc->lines(); return( token::NEWLINE ); }
+{newline} { loc->lines(); return token::NEWLINE; }
 
-{any} { return( token::ANY ); }
+{any} { return token::ANY; }
 
 %%
 
