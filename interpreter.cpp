@@ -30,9 +30,13 @@ bool Interpreter::parse(istream &stream) {
   auto scanner = make_unique<Scanner>(&stream);
   auto parser = make_unique<Parser>(*scanner, *this);
 
-  if (!parser->parse()) {
-    cerr << "Parse failed!!\n";
-    return false;
+  try {
+    if (!parser->parse()) {
+      cerr << "Parse failed!!\n";
+      return false;
+    }
+  } catch(const string &msg) {
+    cerr << msg << endl;
   }
 
   return true;

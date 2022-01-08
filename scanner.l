@@ -14,6 +14,14 @@
 /* update location on matching */
 #define YY_USER_ACTION loc->step(); loc->columns(yyleng);
 
+template <typename T, typename Val>
+void assign(Parser::semantic_type * &yylval, Val val) {
+   yylval->destroy<T>();
+   yylval->emplace<T>(val);
+}
+
+#define ASSIGN(T, val) do { yylval->destroy<T>(); yylval->emplace<T>(yytext); } while(0);
+
 using token = MiniLisp::Parser::token;
 using std::string;
 using std::stoi;
@@ -46,10 +54,12 @@ using std::stoi;
 separator ([\t\n\r ]*)
 letter ([a-z])
 digit ([0-9])
+braces (\)|\()
 
 number (0|-?[1-9]{digit}*)
-id ({letter}({letter}|{digit}|-)*)
-bool_val (#t|#f)
+symbol ([-+*/><=])
+id ({letter}({letter}|{digit})*)|{symbol}
+bool_val ((#t)|(#f))
 print_num (print_num)
 print_bool (print_bool)
 mod (mod)
@@ -74,9 +84,10 @@ any (.)
    // https://www.gnu.org/software/bison/manual/html_node/Split-Symbols.html
 %}
 {separator} { }
-{number} { yylval->emplace<int32_t>(stoi(yytext)); return token::NUMBER; }
-{id} { yylval->emplace<string>(yytext); return token::ID; }
-{bool_val} { yylval->emplace<bool>(strcmp(yytext, "#f")); return token::BOOL; }
+{braces} { assign<std::string>(yylval, yytext); return yytext[0]; }
+{number} { assign<int32_t>(yylval, stoi(yytext)); return token::NUMBER; }
+{id} { assign<std::string>(yylval, yytext); return token::ID; }
+{bool_val} { assign<bool>(yylval, strcmp(yytext, "#f")); return token::BOOL; }
 {print_num} { return token::PRINT_NUM; }
 {print_bool} { return token::PRINT_BOOL; }
 {mod} { return token::MOD; }
@@ -92,7 +103,7 @@ any (.)
 %}
 {newline} { loc->lines(); return token::NEWLINE; }
 
-{any} { return token::ANY; }
+{any} { }
 
 %%
 

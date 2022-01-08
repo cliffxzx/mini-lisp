@@ -30,7 +30,7 @@ CLEANLIST =  $(addsuffix .o, $(OBJ)) $(OBJS) \
 .PHONY: all
 all: mlisp
 
-mlisp: $(FILES)
+mlisp: clean $(FILES)
 	$(MAKE) $(SOBJ)
 	$(MAKE) $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(EXE) $(OBJS) parser.o scanner.o $(LIBS)
