@@ -18,6 +18,10 @@ https://kheresy.wordpress.com/2017/10/16/cpp17-variant/
 ## bison variant
 https://stackoverflow.com/questions/50776052/flex-bison-cannot-use-semantic-type
 
+##
+print_num ? print-num
+lambda ? fun
+
 # MAYBE ONE DAY USE （TO BE DELETE)
 https://stackoverflow.com/questions/31101839/flex-bison-yylex-function-does-not-take-3-arguments
 

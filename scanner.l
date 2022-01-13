@@ -57,18 +57,11 @@ digit ([0-9])
 braces (\)|\()
 
 number (0|-?[1-9]{digit}*)
-symbol ([-+*/><=])
-id ({letter}({letter}|{digit})*)|{symbol}
+symbol ([-+*/><=_])
 bool_val ((#t)|(#f))
-print_num (print_num)
-print_bool (print_bool)
-mod (mod)
-and (and)
-or (or)
-not (not)
+id ({letter}({letter}|{digit}|-)*)|{symbol}
 define (define)
-fun (fun)
-if (if)
+fun (fun|lambda)
 
 newline (\r?\n)
 any (.)
@@ -86,17 +79,10 @@ any (.)
 {separator} { }
 {braces} { assign<std::string>(yylval, yytext); return yytext[0]; }
 {number} { assign<int32_t>(yylval, stoi(yytext)); return token::NUMBER; }
-{id} { assign<std::string>(yylval, yytext); return token::ID; }
 {bool_val} { assign<bool>(yylval, strcmp(yytext, "#f")); return token::BOOL; }
-{print_num} { return token::PRINT_NUM; }
-{print_bool} { return token::PRINT_BOOL; }
-{mod} { return token::MOD; }
-{and} { return token::AND; }
-{or} { return token::OR; }
-{not} { return token::NOT; }
 {define} { return token::DEFINE; }
 {fun} { return token::FUN; }
-{if} { return token::IF; }
+{id} { assign<std::string>(yylval, yytext); return token::ID; }
 
 %{
    // update line number

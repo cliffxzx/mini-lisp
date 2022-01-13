@@ -8,33 +8,39 @@
 #include <vector>
 
 using std::function;
+using std::get;
 using std::map;
 using std::string;
 using std::variant;
 using std::vector;
 
+template <class T, class New>
+class flattern_variant;
+
+template <class... Old, class New>
+class flattern_variant<variant<Old...>, New> : variant<Old..., New> {};
+
 namespace MiniLisp {
-
+class Interpreter;
 class Types {
-  public:
-
+public:
+  class Lambda;
+  class Expression;
   using Symbol = string;
   using Number = int32_t;
   using Bool = bool;
   using Atom = variant<Symbol, Number, Bool>;
-
-  class ExpressionWrapper;
-  using List = vector<ExpressionWrapper>;
-  using Expression = variant<Symbol, Number, Bool, List>;
-
-  class ExpressionWrapper : public Expression {
+  using List = vector<Expression>;
+  using Function = function<Expression(List, Interpreter *)>;
+  using Environment = map<Symbol, Expression>;
+  class Expression : public flattern_variant<Atom, List, Function> {
   public:
     template <typename... Ts>
-    ExpressionWrapper(Ts &&...xs) : Expression{std::forward<Ts>(xs)...} {}
-  };
+    Expression(Ts &&...xs) : variant<Symbol, Number, Bool, List, Function>{std::forward<Ts>(xs)...} {}
 
-  using Function = function<Expression(List)>;
-  using Environment = map<Symbol, Function>;
+    auto operator+(Expression &val) {
+    }
+  };
 };
 
 } // namespace MiniLisp

@@ -50,49 +50,36 @@ namespace MiniLisp {
 // generate the code processing the locations
 %locations
 
+
 // %token               END    0     "end of file"
 %token <int32_t> NUMBER;
 %token <bool> BOOL;
-%token <std::string> ID;
-%token PRINT_NUM PRINT_BOOL MOD AND OR NOT DEFINE FUN IF ANY NEWLINE END SEPARATOR;
+%token <std::string> ID, VARIABLE;
+%token DEFINE FUN ANY NEWLINE END SEPARATOR;
 
-%type <std::string> variable, function_name;
-%type <Types::Expression> expression, print_statement, function_expression, function_body, function_call, if_expression, parameter;
-%type <Types::List> ids, function_ids, parameters, expressions;
+%type <std::string> function_name;
+%type <Types::Expression> expression, print_statement, function_expression, function_call, if_expression, parameter, function_body;
+%type <Types::List> ids, function_ids, parameters, define_statement;
 
 %%
 
 program: statement | statement program;
-statement: expression { interpreter << $1; } | define_statement | print_statement { interpreter << $1; };
-      print_statement: PRINT_NUM expression { $$ = interpreter.eval("print_num", $2); };
-      print_statement: PRINT_BOOL expression { $$ = interpreter.eval("print_bool", $2); };
-      define_statement: '(' DEFINE variable expression ')';
+statement: expression { interpreter << interpreter.eval($1); } | define_statement { interpreter.eval($1); };
+   define_statement: '(' DEFINE ID expression ')' { $$ = Types::List{"define", $3, $4}; };
+   expression: ID { $$ = $1; } | BOOL { $$ = $1;} | NUMBER { $$ = $1;};
 
-      expressions: | expression expressions { $$.push_back($1); };
-      expression: BOOL { $$ = $1;};
-      expression: NUMBER { $$ = $1;};
+   expression: function_expression { $$ = $1; };
+   function_expression: '(' FUN function_ids function_body ')' { $$ = Types::List{"lambda", $3, $4}; }
+      ids: | ID ids { $2.insert($2.begin(), $1); $$ = $2; };
+      function_ids: '(' ids ')' { $$ = $2; };
+      function_body: expression { $$ = $1; };
 
-      expression: variable { $$ = $1; };
-      variable: ID { $$ = $1; };
-
-      expression: function_expression { $$ = $1; };
-      function_expression: '(' FUN function_ids function_body ')'
-         ids: | ID ids { $$.push_back($1); };
-         function_ids: '(' ids ')' { $$ = $2; };
-         function_body: expression { $$ = $1; };
-
-      expression: function_call { $$ = $1; };
-      function_call: '(' function_name parameters ')' { $$ = interpreter.eval($2, $3); };
-      /* function_call: '(' function_expression parameters ')' {}; */
-         parameter: expression { $$ = $1; };
-         parameters: | parameter parameters { $2.insert($2.begin(), $1); $$ = $2; };
-         function_name: ID { $$ = $1; };
-
-      expression: if_expression { $$ = $1; };
-      if_expression: '(' IF test_exp than_exp else_exp ')';
-         test_exp: expression;
-         than_exp: expression;
-         else_exp: expression;
+   expression: function_call { $$ = $1; };
+   function_call: '(' function_name parameters ')' { $3.insert($3.begin(), $2); $$ = $3; };
+   function_call: '(' function_expression parameters ')' { $3.insert($3.begin(), $2); $$ = $3; };
+      parameter: expression { $$ = $1; };
+      parameters: | parameter parameters { $2.insert($2.begin(), $1); $$ = $2; };
+      function_name: ID { $$ = $1; };
 %%
 
 void MiniLisp::Parser::error(const location_type &l, const std::string &err_message) {

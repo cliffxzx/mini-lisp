@@ -12,8 +12,8 @@
                  (fib (- x 1))
                  (fib (- x 2))))))
 
-(print-num (fib 1))
 (print-num (fib 3))
+(print-num (fib 1))
 (print-num (fib 5))
 (print-num (fib 10))
 (print-num (fib 20))
