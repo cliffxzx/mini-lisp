@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project is a 400+ lines lisp interpreter refer to "[(How to Write a (Lisp) Interpreter (in Python))](http://www.norvig.com/lispy.html)". The whole project mainly use stl to implement and use many of `c++17` features. The tokenize & parser implement by [lex & bison(yacc)]() version in [here]().
+This project is a 400+ lines reference from "[(How to Write a (Lisp) Interpreter (in Python))](http://www.norvig.com/lispy.html)". lisp interpreter. The whole project mainly uses stl to implement and use many of the `c++17` features. The tokenize & parser are implemented by the [lex & bison(yacc)](https://github.com/cliffxzx/mini-lisp/tree/lex/bison) version in [here](https://github.com/cliffxzx/mini-lisp/tree/lex/bison).
 
 [The Spec file](./docs%2FCompiler%20Final%20Project.pdf), [Grammar](./docs/MiniLisp.pdf)
 
