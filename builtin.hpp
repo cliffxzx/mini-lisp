@@ -68,6 +68,14 @@ Type::Environment global_env() {
         args.front());
   };
 
+  env["print"] = env["print-num"] = env["print-bool"] = [](auto *it, Type::List args) {
+    if (args.size() != 1)
+      throw Error::parameter_error("too "s + (args.size() < 1 ? "few" : "many") + " parameters to pass");
+
+    *it << ">>>  " << args.front() << endl;
+    return args.front();
+  };
+
   return env;
 };
 
