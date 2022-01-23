@@ -1,0 +1,9 @@
+.vscode
+
+bin
+build
+
+main.o
+interpreter.o
+
+mini_lisp
