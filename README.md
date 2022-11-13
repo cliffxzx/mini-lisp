@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project is a 400+ lines reference from "[(How to Write a (Lisp) Interpreter (in Python))](http://www.norvig.com/lispy.html)". lisp interpreter. The whole project mainly uses stl to implement and use many of the `c++17` features. The tokenize & parser are implemented by the [lex & bison(yacc)](https://github.com/cliffxzx/mini-lisp/tree/lex/bison) version in [here](https://github.com/cliffxzx/mini-lisp/tree/lex/bison).
+This 400+ lines lisp interpreter heavily utilizes STL and C++/17 trait to implement. You can access the original Python implementation [here](http://www.norvig.com/lispy.html). Aside from pure C++ implementation, the tokenize and parser implemented by Lex and Bison(yacc) is included in [this branch](https://github.com/cliffxzx/mini-lisp/tree/lex/bison).
 
 [The Spec file](./docs%2FCompiler%20Final%20Project.pdf), [Grammar](./docs/MiniLisp.pdf)
 
@@ -21,16 +21,18 @@ This project is a 400+ lines reference from "[(How to Write a (Lisp) Interpreter
 | 11. | Nested Function      | Nested function (static scope)                   |    ✅    |
 | 12. | First-class Function | Able to pass functions, support closure          |    ✅    |
 
-## Environment
+## Getting Start
+
+```shell
+make && ./mini_lisp -r
+```
+
+## Testing Environment
 
 - OS: macOS 11.5.2 (Darwin Kernel Version 20.6.0)
 - Device: MacBookPro14,1
 - Compiler: clang 13.0.0
 - Compile flags: `-Wno-register -O0 -g -Wall -std=c++20`
-
-## Start
-
-> $ make && ./mini_lisp -r
 
 ## Problems Encountered
 
